@@ -1,7 +1,3 @@
--- local discipline = require("craftzdog.discipline")
-
--- discipline.cowboy()
-
 local keymap = vim.keymap
 local opts = { noremap = true, silent = true }
 local TERM = os.getenv("TERM")
@@ -19,12 +15,6 @@ keymap.set("n", "<Leader>d", '"_d')
 keymap.set("n", "<Leader>D", '"_D')
 keymap.set("v", "<Leader>d", '"_d')
 keymap.set("v", "<Leader>D", '"_D')
-
--- Toogle git-blame
-keymap.set("n", "<leader>gb", ":GitBlameToggle<CR>")
-
--- Vim-maximizer
-keymap.set("n", "<leader>mm", ":MaximizerToggle<CR>") -- toggle maximize tab
 
 -- Harpoon
 keymap.set("n", "<leader>ha", require("harpoon.mark").add_file)
@@ -103,8 +93,13 @@ end)
 -- Turn off highlighted results
 keymap.set("n", "<leader>no", "<cmd>noh<cr>")
 
--- Diagnostics
+-- Toogle git-blame
+keymap.set("n", "<leader>gb", ":GitBlameToggle<CR>")
 
+-- Vim-maximizer
+keymap.set("n", "<leader>mm", ":MaximizerToggle<CR>")
+
+-- Diagnostics
 -- Goto next diagnostic of any severity
 keymap.set("n", "]d", function()
 	vim.diagnostic.goto_next({})
@@ -155,18 +150,13 @@ keymap.set("n", "<leader>co", ":copen<cr>zz")
 
 -- Close the qflist
 keymap.set("n", "<leader>cc", ":cclose<cr>zz")
+
 -- Press 'U' for redo
 keymap.set("n", "U", "<C-r>")
 
 -- Increment/decrement
 keymap.set("n", "+", "<C-a>")
 keymap.set("n", "-", "<C-x>")
-
--- Delete a word backwards
-keymap.set("n", "dw", 'vb"_d')
-
--- Select all
-keymap.set("n", "<C-a>", "gg<S-v>G")
 
 -- Disable continuations
 keymap.set("n", "<Leader>o", "o<Esc>^Da", opts)
@@ -244,9 +234,6 @@ keymap.set("n", "-", ":resize -5<CR>")
 keymap.set("n", "<CR>", "ciw", opts)
 keymap.set("n", "<BS>", "ci", opts)
 
--- keymap ; to resume last search
--- keymap.set("n", ";", "<cmd>Telescope resume<cr>", opts)
-
 -- search current buffer
 keymap.set("n", "<C-s>", ":Telescope current_buffer_fuzzy_find<CR>", opts)
 
@@ -259,15 +246,3 @@ keymap.set("n", "<C-a>", "ggVG", opts)
 -- write file in current directory
 -- :w %:h/<new-file-name>
 keymap.set("n", "<C-n>", ":w %:h/", opts)
--- Diagnostics
-keymap.set("n", "<C-0>", function()
-	vim.diagnostic.goto_next()
-end, opts)
-
-keymap.set("n", "<leader>r", function()
-	require("craftzdog.hsl").replaceHexWithHSL()
-end)
-
-keymap.set("n", "<leader>i", function()
-	require("craftzdog.lsp").toggleInlayHints()
-end)

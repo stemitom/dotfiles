@@ -23,6 +23,26 @@ return {
 			inlay_hints = { enabled = false },
 			---@type lspconfig.options
 			servers = {
+				gopls = {},
+				rust_analyzer = {
+					settings = {
+						["rust-analyzer"] = {
+							cargo = {
+								allFeatures = true,
+							},
+							imports = {
+								group = {
+									enable = false,
+								},
+							},
+							completion = {
+								postfix = {
+									enable = false,
+								},
+							},
+						},
+					},
+				},
 				cssls = {},
 				tailwindcss = {
 					root_dir = function(...)

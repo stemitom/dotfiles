@@ -154,6 +154,8 @@ keymap.set('n', 'X', ':keeppatterns substitute/\\s*\\%#\\s*/\\r/e <bar> normal! 
 -- Select all
 keymap.set('n', '<C-a>', 'ggVG', opts)
 
--- write file in current directory
--- :w %:h/<new-file-name>
-keymap.set('n', '<C-n>', ':w %:h/', opts)
+-- open new file adjacent to current file
+keymap.set('n', '<C-n>', ':e <C-R>=expand("%:p:h") . "/" <cr>')
+
+-- remove search highlights
+keymap.set('n', '<Esc>', ':nohlsearch<CR>', opts)

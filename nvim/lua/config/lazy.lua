@@ -193,25 +193,38 @@ require('lazy').setup({
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
       local servers = {
-        -- clangd = {},
-        gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
-        -- tsserver = {},
+        rust_analyzer = {
+          settings = {
+            ['rust-analyzer'] = {
+              cargo = {
+                allFeatures = true,
+              },
+              imports = {
+                group = {
+                  enable = false,
+                },
+              },
+              completion = {
+                postfix = {
+                  enable = false,
+                },
+              },
+            },
+          },
+        },
         lua_ls = {
-          -- cmd = {...},
-          -- filetypes { ...},
-          -- capabilities = {},
           settings = {
             Lua = {
               completion = {
                 callSnippet = 'Replace',
               },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { disable = { 'missing-fields' } },
             },
           },
         },
+        gopls = {},
+        pyright = {},
+        -- tsserver = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -258,14 +271,28 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        go = { 'gopls' },
+        python = { 'ruff' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
       },
     },
+  },
+
+  { -- Autopairs and close brackets
+    'm4xshen/autoclose.nvim',
+    enabled = true,
+    lazy = false,
+    config = function()
+      require('autoclose').setup {
+        options = {
+          disabled_filetypes = { 'text', 'markdown' },
+        },
+      }
+    end,
   },
 
   { -- Autocompletion
@@ -276,25 +303,12 @@ require('lazy').setup({
       {
         'L3MON4D3/LuaSnip',
         build = (function()
-          -- Build Step is needed for regex support in snippets
-          -- This step is not supported in many windows environments
-          -- Remove the below condition to re-enable on windows
           if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
             return
           end
           return 'make install_jsregexp'
         end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
-        },
+        dependencies = {},
       },
       'saadparwaiz1/cmp_luasnip',
       'hrsh7th/cmp-nvim-lsp',
@@ -350,27 +364,6 @@ require('lazy').setup({
     end,
   },
 
-  { -- Gruvbox Dark Colorscheme
-    'sainnhe/gruvbox-material',
-    enabled = true,
-    priority = 1000,
-    config = function()
-      vim.g.gruvbox_material_transparent_background = 1
-      vim.g.gruvbox_material_foreground = 'original' -- original, mix, material
-      vim.g.gruvbox_material_background = 'dark' -- soft, medium, hard
-      vim.g.gruvbox_material_ui_contrast = 'high' -- The contrast of line numbers, indent lines, etc.
-      vim.g.gruvbox_material_float_style = 'bright' -- Background of floating windows
-      vim.g.gruvbox_material_statusline_style = 'original' -- original, mix, material
-      vim.g.gruvbox_material_cursor = 'auto'
-
-      vim.g.gruvbox_material_colors_override = { bg0 = '#000000' } -- #0e1010
-      vim.g.gruvbox_material_colors_override = { bg0 = '#121212' }
-      vim.g.gruvbox_material_better_performance = 1
-
-      vim.cmd.colorscheme 'gruvbox-material'
-    end,
-  },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -401,14 +394,11 @@ require('lazy').setup({
     end,
   },
 
-  -- Harpoon for tracking files and buffers
-  {
-    -- https://github.com/ThePrimeagen/harpoon
+  { -- Harpoon for tracking files and buffers
     'ThePrimeagen/harpoon',
     branch = 'master',
     event = 'VeryLazy',
     dependencies = {
-      -- https://github.com/nvim-lua/plenary.nvim
       'nvim-lua/plenary.nvim',
     },
     opts = {
@@ -451,60 +441,57 @@ require('lazy').setup({
 
   -- Nvim and Tmux Navigator
   {
-    {
-      'alexghergh/nvim-tmux-navigation',
-      config = function()
-        require('nvim-tmux-navigation').setup {
-          disable_when_zoomed = true,
-        }
-        local TERM = os.getenv 'TERM'
-        vim.keymap.set('n', '<C-j>', function()
-          if vim.fn.exists ':KittyNavigateDown' ~= 0 and TERM == 'xterm-kitty' then
-            vim.cmd.KittyNavigateDown()
-          elseif vim.fn.exists ':TmuxNavigateDown' ~= 0 then
-            vim.cmd.TmuxNavigateDown()
-          elseif vim.fn.exists ':NvimTmuxNavigateDown' ~= 0 then
-            vim.cmd.NvimTmuxNavigateDown()
-          else
-            vim.cmd.wincmd 'j'
-          end
-        end)
+    'alexghergh/nvim-tmux-navigation',
+    config = function()
+      require('nvim-tmux-navigation').setup {
+        disable_when_zoomed = true,
+      }
+      local TERM = os.getenv 'TERM'
+      vim.keymap.set('n', '<C-j>', function()
+        if vim.fn.exists ':KittyNavigateDown' ~= 0 and TERM == 'xterm-kitty' then
+          vim.cmd.KittyNavigateDown()
+        elseif vim.fn.exists ':TmuxNavigateDown' ~= 0 then
+          vim.cmd.TmuxNavigateDown()
+        elseif vim.fn.exists ':NvimTmuxNavigateDown' ~= 0 then
+          vim.cmd.NvimTmuxNavigateDown()
+        else
+          vim.cmd.wincmd 'j'
+        end
+      end)
 
-        vim.keymap.set('n', '<C-k>', function()
-          if vim.fn.exists ':KittyNavigateUp' ~= 0 and TERM == 'xterm-kitty' then
-            vim.cmd.KittyNavigateUp()
-          elseif vim.fn.exists ':NvimTmuxNavigateUp' ~= 0 then
-            vim.cmd.NvimTmuxNavigateUp()
-          else
-            vim.cmd.wincmd 'k'
-          end
-        end)
+      vim.keymap.set('n', '<C-k>', function()
+        if vim.fn.exists ':KittyNavigateUp' ~= 0 and TERM == 'xterm-kitty' then
+          vim.cmd.KittyNavigateUp()
+        elseif vim.fn.exists ':NvimTmuxNavigateUp' ~= 0 then
+          vim.cmd.NvimTmuxNavigateUp()
+        else
+          vim.cmd.wincmd 'k'
+        end
+      end)
 
-        vim.keymap.set('n', '<C-l>', function()
-          if vim.fn.exists ':KittyNavigateRight' ~= 0 and TERM == 'xterm-kitty' then
-            vim.cmd.KittyNavigateRight()
-          elseif vim.fn.exists ':NvimTmuxNavigateRight' ~= 0 then
-            vim.cmd.NvimTmuxNavigateRight()
-          else
-            vim.cmd.wincmd 'l'
-          end
-        end)
+      vim.keymap.set('n', '<C-l>', function()
+        if vim.fn.exists ':KittyNavigateRight' ~= 0 and TERM == 'xterm-kitty' then
+          vim.cmd.KittyNavigateRight()
+        elseif vim.fn.exists ':NvimTmuxNavigateRight' ~= 0 then
+          vim.cmd.NvimTmuxNavigateRight()
+        else
+          vim.cmd.wincmd 'l'
+        end
+      end)
 
-        vim.keymap.set('n', '<C-h>', function()
-          if vim.fn.exists ':KittyNavigateLeft' ~= 0 and TERM == 'xterm-kitty' then
-            vim.cmd.KittyNavigateLeft()
-          elseif vim.fn.exists ':NvimTmuxNavigateLeft' ~= 0 then
-            vim.cmd.NvimTmuxNavigateLeft()
-          else
-            vim.cmd.wincmd 'h'
-          end
-        end)
-      end,
-    },
+      vim.keymap.set('n', '<C-h>', function()
+        if vim.fn.exists ':KittyNavigateLeft' ~= 0 and TERM == 'xterm-kitty' then
+          vim.cmd.KittyNavigateLeft()
+        elseif vim.fn.exists ':NvimTmuxNavigateLeft' ~= 0 then
+          vim.cmd.NvimTmuxNavigateLeft()
+        else
+          vim.cmd.wincmd 'h'
+        end
+      end)
+    end,
   },
 
-  -- Lightline at the bottom
-  {
+  { -- nice bar at the bottom
     'itchyny/lightline.vim',
     lazy = false, -- also load at start since it's UI
     config = function()
@@ -523,6 +510,7 @@ require('lazy').setup({
           },
         },
         component_function = {
+          gitbranch = 'gitbranch#name',
           filename = 'LightlineFilename',
         },
       }
@@ -542,6 +530,45 @@ require('lazy').setup({
 				]],
         true
       )
+    end,
+  },
+
+  { -- Gruvbox Dark Colorscheme
+    'sainnhe/gruvbox-material',
+    enabled = true,
+    priority = 1000,
+    config = function()
+      vim.g.gruvbox_material_transparent_background = 1
+      vim.g.gruvbox_material_foreground = 'original' -- original, mix, material
+      vim.g.gruvbox_material_background = 'hard' -- soft, medium, hard
+      vim.g.gruvbox_material_ui_contrast = 'high' -- The contrast of line numbers, indent lines, etc.
+      vim.g.gruvbox_material_float_style = 'bright' -- Background of floating windows
+      vim.g.gruvbox_material_statusline_style = 'original' -- original, mix, material
+      vim.g.gruvbox_material_cursor = 'auto'
+
+      vim.g.gruvbox_material_colors_override = { bg0 = '#000000' } -- #0e1010
+      vim.g.gruvbox_material_colors_override = { bg0 = '#121212' }
+      vim.g.gruvbox_material_better_performance = 1
+
+      vim.cmd.colorscheme 'gruvbox-material'
+    end,
+  },
+
+  { -- Everforest
+    'sainnhe/everforest',
+    enabled = true,
+    priority = 1000,
+    config = function()
+      vim.g.everforest_transparent_background = 1
+      vim.g.everforest_background = 'hard'
+      vim.g.everforest_ui_contrast = 'high'
+      vim.g.everforest_float_style = 'dim'
+      vim.g.everforest_enable_italic = 1
+      vim.g.everforest_cursor = 'auto'
+      vim.g.everforest_better_performance = 1
+      vim.g.everforest_diagnostic_line_highlight = 1
+
+      -- vim.cmd.colorscheme 'everforest'
     end,
   },
 

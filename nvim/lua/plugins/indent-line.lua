@@ -1,5 +1,17 @@
-return {
+return { -- indentation guides
   'lukas-reineke/indent-blankline.nvim',
-  main = 'ibl',
-  opt = {},
+  version = '*',
+  event = 'VeryLazy',
+  opts = {
+    indent = {
+      char = '│',
+    },
+  },
+  config = function(_, opts)
+    require('ibl').setup(opts)
+    vim.cmd.highlight {
+      'link @ibl.scope.underline.1 IndentBlanklineContextStart',
+      bang = true,
+    }
+  end,
 }

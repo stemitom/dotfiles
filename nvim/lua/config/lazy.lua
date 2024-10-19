@@ -56,12 +56,17 @@ require('lazy').setup({
       require('which-key').setup()
 
       -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>c_', hidden = true },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>d_', hidden = true },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>r_', hidden = true },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>s_', hidden = true },
+        { '<leader>w', group = '[W]orkspace' },
+        { '<leader>w_', hidden = true },
       }
     end,
   },
@@ -230,9 +235,9 @@ require('lazy').setup({
             },
           },
         },
-        zig = {
-          cmd = { '/opt/homebrew/bin/zls' },
-        },
+        -- zig = {
+        --   cmd = { '/opt/homebrew/bin/zls' },
+        -- },
         lua_ls = {
           settings = {
             Lua = {
@@ -244,7 +249,6 @@ require('lazy').setup({
           },
         },
         gopls = {},
-        tsserver = {},
         solang = {},
         -- pyright = {},
       }
@@ -294,7 +298,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         go = { 'gopls' },
-        zig = { 'zig fmt' },
+        -- zig = { 'zig fmt' },
         -- python = { 'isort', 'black' },
         -- javascript = { { "prettierd", "prettier" } },
       },
@@ -402,6 +406,7 @@ require('lazy').setup({
           return vim.fn.printf('fd --type file --follow | proximity-sort %s', vim.fn.shellescape(vim.fn.expand '%'))
         end
       end
+
       vim.api.nvim_create_user_command('Files', function(arg)
         vim.fn['fzf#vim#files'](arg.qargs, { source = list_cmd(), options = '--tiebreak=index' }, arg.bang)
       end, { bang = true, nargs = '?', complete = 'dir' })

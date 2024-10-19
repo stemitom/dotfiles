@@ -31,6 +31,24 @@ require('lazy').setup({
     },
   },
 
+  { -- indentation guides
+    'lukas-reineke/indent-blankline.nvim',
+    version = '*',
+    event = 'VeryLazy',
+    opts = {
+      indent = {
+        char = '│',
+      },
+    },
+    config = function(_, opts)
+      require('ibl').setup(opts)
+      vim.cmd.highlight {
+        'link @ibl.scope.underline.1 IndentBlanklineContextStart',
+        bang = true,
+      }
+    end,
+  },
+
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -212,6 +230,9 @@ require('lazy').setup({
             },
           },
         },
+        zig = {
+          cmd = { '/opt/homebrew/bin/zls' },
+        },
         lua_ls = {
           settings = {
             Lua = {
@@ -223,8 +244,9 @@ require('lazy').setup({
           },
         },
         gopls = {},
-        pyright = {},
-        -- tsserver = {},
+        tsserver = {},
+        solang = {},
+        -- pyright = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -272,11 +294,8 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         go = { 'gopls' },
-        python = { 'ruff' },
-        -- Conform can also run multiple formatters sequentially
-        --
-        -- You can use a sub-list to tell conform to run *until* a formatter
-        -- is found.
+        zig = { 'zig fmt' },
+        -- python = { 'isort', 'black' },
         -- javascript = { { "prettierd", "prettier" } },
       },
     },
@@ -375,9 +394,6 @@ require('lazy').setup({
     },
     config = function()
       vim.g.fzf_layout = { down = '~20%' }
-      -- when using :Files, pass the file list through
-      -- https://github.com/jonhoo/proximity-sort
-      -- to prefer files closer to the current file.
       function list_cmd()
         local base = vim.fn.fnamemodify(vim.fn.expand '%', ':h:.:S')
         if base == '.' then
@@ -491,46 +507,130 @@ require('lazy').setup({
     end,
   },
 
-  { -- nice bar at the bottom
-    'itchyny/lightline.vim',
-    lazy = false, -- also load at start since it's UI
+  { -- File Tree
+    'nvim-neo-tree/neo-tree.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons',
+      'MunifTanjim/nui.nvim',
+    },
+    event = 'VeryLazy',
+    keys = {
+      { '<leader>e', ':Neotree toggle float<CR>', silent = true, desc = 'Float File Explorer' },
+      { '<leader><tab>', ':Neotree toggle left<CR>', silent = true, desc = 'Left File Explorer' },
+    },
     config = function()
-      -- no need to also show mode in cmd line when we have bar
-      vim.o.showmode = false
-      vim.g.lightline = {
-        active = {
-          left = {
-            { 'mode', 'paste' },
-            { 'readonly', 'filename', 'modified' },
+      require('neo-tree').setup {
+        close_if_last_window = true,
+        popup_border_style = 'single',
+        enable_git_status = true,
+        enable_modified_markers = true,
+        enable_diagnostics = true,
+        sort_case_insensitive = true,
+        default_component_configs = {
+          indent = {
+            with_markers = true,
+            with_expanders = true,
           },
-          right = {
-            { 'lineinfo' },
-            { 'percent' },
-            { 'fileencoding', 'filetype' },
+          modified = {
+            symbol = ' ',
+            highlight = 'NeoTreeModified',
+          },
+          icon = {
+            folder_closed = '',
+            folder_open = '',
+            folder_empty = '',
+            folder_empty_open = '',
+          },
+          git_status = {
+            symbols = {
+              -- Change type
+              added = '',
+              deleted = '',
+              modified = '',
+              renamed = '',
+              -- Status type
+              untracked = '',
+              ignored = '',
+              unstaged = '',
+              staged = '',
+              conflict = '',
+            },
           },
         },
-        component_function = {
-          gitbranch = 'gitbranch#name',
-          filename = 'LightlineFilename',
+        window = {
+          position = 'float',
+          width = 35,
+        },
+        filesystem = {
+          use_libuv_file_watcher = true,
+          filtered_items = {
+            hide_dotfiles = true,
+            hide_gitignored = true,
+            hide_by_name = {
+              'node_modules',
+            },
+            never_show = {
+              '.DS_Store',
+              'thumbs.db',
+            },
+          },
+        },
+        event_handlers = {
+          {
+            event = 'neo_tree_window_after_open',
+            handler = function(args)
+              if args.position == 'left' or args.position == 'right' then
+                vim.cmd 'wincmd ='
+              end
+            end,
+          },
+          {
+            event = 'neo_tree_window_after_close',
+            handler = function(args)
+              if args.position == 'left' or args.position == 'right' then
+                vim.cmd 'wincmd ='
+              end
+            end,
+          },
         },
       }
-      function LightlineFilenameInLua(opts)
-        if vim.fn.expand '%:t' == '' then
-          return '[No Name]'
-        else
-          return vim.fn.getreg '%'
-        end
-      end
-      -- https://github.com/itchyny/lightline.vim/issues/657
-      vim.api.nvim_exec(
-        [[
-				function! g:LightlineFilename()
-					return v:lua.LightlineFilenameInLua()
-				endfunction
-				]],
-        true
-      )
     end,
+  },
+
+  { -- Status line
+    'nvim-lualine/lualine.nvim',
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+      'linrongbin16/lsp-progress.nvim',
+    },
+    opts = {
+      options = {
+        icons_enabled = false,
+        theme = 'auto',
+        component_separators = { left = '|', right = '|' },
+        section_separators = { left = '', right = '' },
+        disabled_filetypes = {
+          statusline = { 'neo-tree', 'help', 'Trouble' },
+          winbar = {},
+        },
+      },
+      sections = {
+        lualine_c = {
+          {
+            'filename',
+            file_status = true,
+            newfile_status = false,
+            path = 1,
+            symbols = {
+              modified = '[+]',
+              readonly = '[-]',
+            },
+          },
+        },
+        lualine_x = { 'encoding', 'filetype' },
+      },
+    },
   },
 
   { -- Gruvbox Dark Colorscheme
@@ -539,36 +639,78 @@ require('lazy').setup({
     priority = 1000,
     config = function()
       vim.g.gruvbox_material_transparent_background = 1
-      vim.g.gruvbox_material_foreground = 'original' -- original, mix, material
-      vim.g.gruvbox_material_background = 'hard' -- soft, medium, hard
-      vim.g.gruvbox_material_ui_contrast = 'high' -- The contrast of line numbers, indent lines, etc.
-      vim.g.gruvbox_material_float_style = 'bright' -- Background of floating windows
-      vim.g.gruvbox_material_statusline_style = 'original' -- original, mix, material
+      vim.g.gruvbox_material_foreground = 'original'
+      vim.g.gruvbox_material_background = 'medium'
+      vim.g.gruvbox_material_ui_contrast = 'high'
+      vim.g.gruvbox_material_float_style = 'bright'
+      vim.g.gruvbox_material_statusline_style = 'original'
       vim.g.gruvbox_material_cursor = 'auto'
 
       vim.g.gruvbox_material_colors_override = { bg0 = '#000000' } -- #0e1010
       vim.g.gruvbox_material_colors_override = { bg0 = '#121212' }
       vim.g.gruvbox_material_better_performance = 1
 
-      vim.cmd.colorscheme 'gruvbox-material'
+      -- vim.cmd.colorscheme 'gruvbox-material'
     end,
   },
 
-  { -- Everforest
-    'sainnhe/everforest',
+  { -- Cyberdream
+    'scottmckendry/cyberdream.nvim',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'cyberdream'
+    end,
+  },
+
+  { -- Base16
+    'RRethy/base16-nvim',
     enabled = true,
     priority = 1000,
     config = function()
-      vim.g.everforest_transparent_background = 1
-      vim.g.everforest_background = 'hard'
-      vim.g.everforest_ui_contrast = 'high'
-      vim.g.everforest_float_style = 'dim'
-      vim.g.everforest_enable_italic = 1
-      vim.g.everforest_cursor = 'auto'
-      vim.g.everforest_better_performance = 1
-      vim.g.everforest_diagnostic_line_highlight = 1
+      require('base16-colorscheme').with_config {}
+      -- vim.cmd.colorscheme 'base16-material-darker'
+    end,
+  },
 
-      -- vim.cmd.colorscheme 'everforest'
+  { -- Tokyonight
+    'folke/tokyonight.nvim',
+    enabled = true,
+    priority = 1000,
+    config = function()
+      require('tokyonight').setup {}
+      -- vim.cmd.colorscheme 'tokyonight-night'
+    end,
+  },
+
+  { -- Kanagawa
+    'rebelot/kanagawa.nvim',
+    enabled = true,
+    priority = 1000,
+    config = function()
+      require('kanagawa').setup {
+        keywordStyle = { italic = false },
+        statementStyle = { bold = true },
+      }
+      -- vim.cmd.colorscheme 'kanagawa-dragon'
+    end,
+  },
+
+  { -- Vesper
+    'datsfilipe/vesper.nvim',
+    enabled = true,
+    priority = 1000,
+    config = function()
+      require('vesper').setup {
+        italics = {
+          comments = false, -- Boolean: Italicizes comments
+          keywords = false, -- Boolean: Italicizes keywords
+          functions = false, -- Boolean: Italicizes functions
+          strings = false, -- Boolean: Italicizes strings
+          variables = false, -- Boolean: Italicizes variables
+        },
+      }
+      -- vim.cmd.colorscheme 'vesper'
     end,
   },
 
@@ -614,8 +756,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'go' },
       auto_install = true,
       highlight = {
         enable = true,

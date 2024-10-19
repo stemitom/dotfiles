@@ -55,18 +55,6 @@ end)
 -- Place all dignostics into a qflist
 keymap.set('n', '<leader>ld', vim.diagnostic.setqflist, { desc = 'Quickfix [L]ist [D]iagnostics' })
 
--- Navigate to next qflist item
-keymap.set('n', '<leader>cn', ':cnext<cr>zz')
-
--- Navigate to previos qflist item
-keymap.set('n', '<leader>cp', ':cprevious<cr>zz')
-
--- Open the qflist
-keymap.set('n', '<leader>co', ':copen<cr>zz')
-
--- Close the qflist
-keymap.set('n', '<leader>cc', ':cclose<cr>zz')
-
 -- Press 'U' for redo
 keymap.set('n', 'U', '<C-r>')
 

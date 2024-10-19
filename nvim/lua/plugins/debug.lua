@@ -8,6 +8,7 @@
 
 return {
   -- NOTE: Yes, you can install new plugins here!
+  'nvim-neotest/nvim-nio',
   'mfussenegger/nvim-dap',
   -- NOTE: And you can specify dependencies as well
   dependencies = {

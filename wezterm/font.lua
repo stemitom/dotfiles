@@ -11,7 +11,7 @@ function M.update_config(config)
 			weight = "Regular",
 		},
 	})
-	config.font_size = 10
+	config.font_size = 11
 end
 
 return M

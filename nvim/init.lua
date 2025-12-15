@@ -351,44 +351,71 @@ require('lazy').setup {
 
   -- File navigation
   {
-    'junegunn/fzf.vim',
-    dependencies = {
-      { 'junegunn/fzf', dir = '/home/sam/.fzf', build = './install --all' },
-    },
+    'ibhagwan/fzf-lua',
     config = function()
-      vim.g.fzf_layout = { down = '~20%' }
-      function ListCWD()
+      local fzf = require 'fzf-lua'
+
+      fzf.setup {
+        winopts = {
+          split = 'belowright 10new',
+          preview = { hidden = true },
+        },
+        files = {
+          file_icons = false,
+          git_icons = true,
+          _fzf_nth_devicons = true,
+        },
+        buffers = {
+          file_icons = false,
+          git_icons = true,
+        },
+        fzf_opts = {
+          ['--layout'] = 'default',
+        },
+      }
+
+      vim.keymap.set('', '<C-p>', function()
+        opts.cmd = 'fd --color=never --hidden --type f --type l --exclude .git'
         local base = vim.fn.fnamemodify(vim.fn.expand '%', ':h:.:S')
-        if base == '.' then
-          return 'fd --type file --follow'
-        else
-          return vim.fn.printf('fd --type file --follow | proximity-sort %s', vim.fn.shellescape(vim.fn.expand '%'))
+        if base ~= '.' then
+          opts.cmd = opts.cmd .. (' | proximity-sort %s'):format(vim.fn.shellescape(vim.fn.expand '%'))
         end
-      end
+        opts.fzf_opts = {
+          ['--scheme'] = 'path',
+          ['--tiebreak'] = 'index',
+          ['--layout'] = 'default',
+        }
+        fzf.files(opts)
+      end)
 
-      vim.api.nvim_create_user_command('Files', function(arg)
-        vim.fn['fzf#vim#files'](arg.qargs, { source = ListCWD(), options = '--tiebreak=index' }, arg.bang)
-      end, { bang = true, nargs = '?', complete = 'dir' })
+      vim.keymap.set('n', '<leader>sf', fzf.files)
 
-      -- File/buffer navigation
-      keymap.set('', '<C-p>', '<cmd>Files<cr>')
-      keymap.set('n', '<leader>sf', '<cmd>Files<cr>', { desc = '[S]earch [F]iles' })
-      keymap.set('n', '<leader>;', '<cmd>Buffers<cr>')
+      vim.keymap.set('n', '<leader>;', function()
+        fzf.buffers {
+          fzf_opts = {
+            ['--with-nth'] = '{-3..-2}',
+            ['--nth'] = '-1',
+            ['--delimiter'] = '[:\u{2002}]',
+            ['--header-lines'] = 'false',
+          },
+          header = false,
+        }
+      end)
 
-      -- Search
-      keymap.set('n', '<leader>sg', '<cmd>Rg<cr>', { desc = '[S]earch by [G]rep' })
-      keymap.set('n', '<leader>sw', '<cmd>exec "Rg " . expand("<cword>")<cr>', { desc = '[S]earch current [W]ord' })
-      keymap.set('n', '<C-s>', '<cmd>BLines<cr>', { desc = 'Search current buffer' })
+      vim.keymap.set('n', '<leader>sg', fzf.live_grep)
+      vim.keymap.set('n', '<leader>sw', fzf.grep_cword)
+      vim.keymap.set('n', '<C-s>', fzf.blines)
 
-      -- History and help
-      keymap.set('n', '<leader>s.', '<cmd>History<cr>', { desc = '[S]earch Recent Files' })
-      keymap.set('n', '<leader>sh', '<cmd>Helptags<cr>', { desc = '[S]earch [H]elp' })
-      keymap.set('n', '<leader>sk', '<cmd>Maps<cr>', { desc = '[S]earch [K]eymaps' })
+      vim.keymap.set('n', '<leader>s.', fzf.oldfiles)
+      vim.keymap.set('n', '<leader>sh', fzf.help_tags)
+      vim.keymap.set('n', '<leader>sk', fzf.keymaps)
 
-      -- Search in neovim config
-      keymap.set('n', '<leader>sn', function()
-        vim.fn['fzf#vim#files'](vim.fn.stdpath 'config', { source = 'fd --type file --follow', options = '--tiebreak=index' })
-      end, { desc = '[S]earch [N]eovim files' })
+      vim.keymap.set('n', '<leader>sn', function()
+        fzf.files {
+          cwd = vim.fn.stdpath 'config',
+          cmd = 'fd --color=never --type f --follow',
+        }
+      end)
     end,
   },
 

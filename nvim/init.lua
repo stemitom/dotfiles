@@ -259,7 +259,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- Jump to last edit position on opening file
 vim.api.nvim_create_autocmd('BufReadPost', {
   pattern = '*',
-  callback = function(ev)
+  callback = function()
     if vim.fn.line '\'"' > 1 and vim.fn.line '\'"' <= vim.fn.line '$' then
       if not vim.fn.expand('%:p'):find('.git', 1, true) then
         vim.cmd 'exe "normal! g\'\\""'
@@ -347,6 +347,35 @@ require('lazy').setup {
         lualine_x = { 'encoding', 'filetype' },
       },
     },
+  },
+
+  -- Center Editor
+  {
+    'shortcuts/no-neck-pain.nvim',
+    version = '*',
+    opts = {
+      mappings = {
+        enabled = true,
+        toggle = false,
+        toggleLeftSide = false,
+        toggleRightSide = false,
+        widthUp = false,
+        widthDown = false,
+        scratchPad = false,
+      },
+    },
+    config = function()
+      vim.keymap.set('', '<leader>t', function()
+        vim.cmd [[
+					:NoNeckPain
+					:set formatoptions-=tc linebreak tw=0 cc=0 wrap wm=20 noautoindent nocindent nosmartindent indentkeys=
+				]]
+        -- make 0, ^ and $ behave better in wrapped text
+        vim.keymap.set('n', '0', 'g0')
+        vim.keymap.set('n', '$', 'g$')
+        vim.keymap.set('n', '^', 'g^')
+      end)
+    end,
   },
 
   -- File navigation

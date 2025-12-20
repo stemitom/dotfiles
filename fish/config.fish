@@ -3,6 +3,7 @@
 # ============================================
 abbr -a yr 'cal -y'
 abbr -a c cargo
+abbr -a cl 'clear'
 abbr -a ct 'cargo t'
 abbr -a gobu 'go build'
 abbr -a goft 'go fmt'

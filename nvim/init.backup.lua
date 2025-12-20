@@ -14,11 +14,8 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.have_nerd_font = true
 
--- Disable unused providers
-vim.g.loaded_python3_provider = 0
-vim.g.loaded_ruby_provider = 0
-vim.g.loaded_perl_provider = 0
-vim.g.loaded_node_provider = 0
+vim.opt.lazyredraw = true
+vim.opt.ttyfast = true
 
 -- UI
 vim.opt.number = true
@@ -87,6 +84,9 @@ vim.opt.foldenable = false
 vim.opt.foldmethod = 'manual'
 vim.opt.foldlevelstart = 99
 
+-- Never make terminal beep
+vim.opt.vb = true
+
 -------------------------------------------------------------------------------
 --
 -- hotkeys
@@ -133,8 +133,8 @@ keymap.set('n', '/', '/\\v')
 keymap.set('c', '%s/', '%sm/')
 
 -- Split window
-keymap.set('n', 'ss', ':split<Return>', opts)
-keymap.set('n', 'sv', ':vsplit<Return>', opts)
+keymap.set('n', 'ss', ':split | wincmd p<CR>', opts)
+keymap.set('n', 'sv', ':vsplit | wincmd p<CR>', opts)
 
 -- Resize window
 keymap.set('n', '<C-w><left>', '<C-w><')
@@ -143,10 +143,10 @@ keymap.set('n', '<C-w><up>', '<C-w>+')
 keymap.set('n', '<C-w><down>', '<C-w>-')
 
 -- Panes resizing alternative
-keymap.set('n', '<C-w>+', ':vertical resize +5<CR>', opts)
-keymap.set('n', '<C-w>-', ':vertical resize -5<CR>', opts)
-keymap.set('n', '<C-w>=', ':resize +5<CR>', opts)
-keymap.set('n', '<C-w>_', ':resize -5<CR>', opts)
+keymap.set('n', '+', ':vertical resize +5<CR>')
+keymap.set('n', '_', ':vertical resize -5<CR>')
+keymap.set('n', '=', ':resize +5<CR>')
+keymap.set('n', '-', ':resize -5<CR>')
 
 -- Navigate buffers
 keymap.set('n', '<Left>', ':bprevious<CR>', opts)
@@ -196,13 +196,9 @@ keymap.set('n', '<leader>O', 'O<Esc>^Da', opts)
 -- Toggle hidden characters
 keymap.set('n', '<leader>,', ':set invlist<cr>')
 
--- Change word
-keymap.set('n', '<leader>cw', 'ciw', opts)
+-- Enter to change word
+-- keymap.set('n', '<CR>', 'ciw', opts)
 keymap.set('n', '<BS>', 'ci', opts)
-
--- Increment/decrement
-keymap.set('n', '+', '<C-a>')
-keymap.set('n', '-', '<C-x>')
 
 -- Jumplist
 keymap.set('n', '<C-m>', '<C-i>', opts)
@@ -252,12 +248,12 @@ keymap.set('i', '<F1>', '<Esc>')
 -------------------------------------------------------------------------------
 
 -- Highlight yanked text
-vim.api.nvim_create_autocmd('TextYankPost', {
-  pattern = '*',
-  callback = function()
-    vim.highlight.on_yank { timeout = 500 }
-  end,
-})
+-- vim.api.nvim_create_autocmd('TextYankPost', {
+--   pattern = '*',
+--   callback = function()
+--     vim.highlight.on_yank { timeout = 500 }
+--   end,
+-- })
 
 -- Jump to last edit position on opening file
 vim.api.nvim_create_autocmd('BufReadPost', {
@@ -283,14 +279,7 @@ vim.api.nvim_create_autocmd('InsertLeave', { pattern = '*', command = 'set nopas
 -- diagnostics
 --
 -------------------------------------------------------------------------------
-vim.diagnostic.config {
-  virtual_text = true,
-  virtual_lines = false,
-  float = {
-    border = 'rounded',
-    source = 'always',
-  },
-}
+vim.diagnostic.config { virtual_text = true, virtual_lines = false }
 
 -------------------------------------------------------------------------------
 --
@@ -380,6 +369,7 @@ require('lazy').setup {
 					:NoNeckPain
 					:set formatoptions-=tc linebreak tw=0 cc=0 wrap wm=20 noautoindent nocindent nosmartindent indentkeys=
 				]]
+        -- make 0, ^ and $ behave better in wrapped text
         vim.keymap.set('n', '0', 'g0')
         vim.keymap.set('n', '$', 'g$')
         vim.keymap.set('n', '^', 'g^')
@@ -396,6 +386,7 @@ require('lazy').setup {
       fzf.setup {
         winopts = {
           split = 'belowright 10new',
+          -- preview = { hidden = true },
         },
         files = {
           file_icons = false,
@@ -412,7 +403,6 @@ require('lazy').setup {
       }
 
       vim.keymap.set('', '<C-p>', function()
-        local opts = {}
         opts.cmd = 'fd --color=never --hidden --type f --type l --exclude .git'
         local base = vim.fn.fnamemodify(vim.fn.expand '%', ':h:.:S')
         if base ~= '.' then
@@ -541,7 +531,6 @@ require('lazy').setup {
       'WhoIsSethDaniel/mason-tool-installer.nvim',
       { 'j-hui/fidget.nvim', opts = {} },
       { 'folke/neodev.nvim', opts = {} },
-      'saghen/blink.cmp',
     },
     config = function()
       vim.api.nvim_create_autocmd('LspAttach', {
@@ -552,6 +541,7 @@ require('lazy').setup {
           end
 
           map('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+
           map('gr', vim.lsp.buf.references, '[G]oto [R]eferences')
           map('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -564,11 +554,24 @@ require('lazy').setup {
           map('<leader>f', function()
             vim.lsp.buf.format { async = true }
           end, '[F]ormat')
+
+          -- Commented out: LSP document highlighting (performance improvement)
+          -- local client = vim.lsp.get_client_by_id(event.data.client_id)
+          -- if client and client.server_capabilities.documentHighlightProvider then
+          -- 	vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+          -- 		buffer = event.buf,
+          -- 		callback = vim.lsp.buf.document_highlight,
+          -- 	})
+          -- 	vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+          -- 		buffer = event.buf,
+          -- 		callback = vim.lsp.buf.clear_references,
+          -- 	})
+          -- end
         end,
       })
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
+      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       local servers = {
         rust_analyzer = {
@@ -643,58 +646,78 @@ require('lazy').setup {
     },
   },
 
-  -- Autocompletion (blink.cmp)
+  -- Autocompletion
   {
-    'saghen/blink.cmp',
+    'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
-    version = '1.*',
     dependencies = {
-      'L3MON4D3/LuaSnip',
+      {
+        'L3MON4D3/LuaSnip',
+        build = (function()
+          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+            return
+          end
+          return 'make install_jsregexp'
+        end)(),
+      },
+      'saadparwaiz1/cmp_luasnip',
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-path',
     },
-    opts = {
-      keymap = {
-        preset = 'default',
-        ['<C-y>'] = { 'select_and_accept' },
-        ['<CR>'] = { 'select_and_accept', 'fallback' },
-        ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' },
-        ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
-        ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
-        ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
-        ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
-      },
-      completion = {
-        list = {
-          selection = { preselect = true, auto_insert = true },
-          max_items = 5,
-        },
-        menu = {
-          border = 'rounded',
-          draw = {
-            columns = { { 'label', 'label_description', gap = 1 }, { 'kind' } },
-          },
-        },
-        documentation = {
-          auto_show = true,
-          auto_show_delay_ms = 200,
-          window = { border = 'rounded' },
-        },
-      },
-      snippets = { preset = 'luasnip' },
-      sources = {
-        default = { 'lsp', 'snippets', 'path', 'buffer' },
-      },
-    },
-  },
+    config = function()
+      local cmp = require 'cmp'
+      local luasnip = require 'luasnip'
+      luasnip.config.setup {}
 
-  -- Snippets
-  {
-    'L3MON4D3/LuaSnip',
-    build = (function()
-      if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-        return
-      end
-      return 'make install_jsregexp'
-    end)(),
+      cmp.setup {
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
+          end,
+        },
+        completion = { completeopt = 'menu,menuone,noinsert' },
+        mapping = cmp.mapping.preset.insert {
+          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<C-Space>'] = cmp.mapping.complete {},
+          ['<CR>'] = cmp.mapping.confirm {
+            behavior = cmp.ConfirmBehavior.Replace,
+            select = true,
+          },
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item()
+            elseif luasnip.expand_or_locally_jumpable() then
+              luasnip.expand_or_jump()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            elseif luasnip.locally_jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+        },
+        sources = {
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+          { name = 'path' },
+        },
+      }
+
+      -- Enable completing paths in command mode
+      cmp.setup.cmdline(':', {
+        sources = cmp.config.sources {
+          { name = 'path' },
+        },
+      })
+    end,
   },
 
   -- Autopairs
@@ -718,17 +741,10 @@ require('lazy').setup {
       highlight = {
         enable = true,
         additional_vim_regex_highlighting = { 'ruby' },
-        disable = function(lang, buf) -- disable highlighting for files that are bigger than 100 KB
-          local max_filesize = 100 * 1024
-          local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-          if ok and stats and stats.size > max_filesize then
-            return true
-          end
-        end,
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
-    config = function(_, opts)
+    config = function(_, _)
       require('nvim-treesitter.configs').setup(opts)
     end,
   },
@@ -808,10 +824,9 @@ require('lazy').setup {
       'neovim/nvim-lspconfig',
       'nvim-treesitter/nvim-treesitter',
       'leoluz/nvim-dap-go',
-      'saghen/blink.cmp',
     },
     config = function()
-      local capabilities = require('blink.cmp').get_lsp_capabilities()
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
       require('go').setup {
         capabilities = capabilities,
         lsp_cfg = {
@@ -854,6 +869,10 @@ require('lazy').setup {
       },
     },
   },
+
+  -- Python
+  -- LSP: pyright (type checking) + ruff (linting/formatting)
+  -- Formatting: ruff_format + ruff_organize_imports (replaces black + isort)
 
   -- Zig
   {

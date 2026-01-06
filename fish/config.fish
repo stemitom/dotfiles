@@ -36,15 +36,15 @@ else
 end
 
 # ============================================
-# Tmux auto-start
+# Zellij auto-start
 # ============================================
 if status --is-interactive
 	switch $TERM
 		case 'linux'
-			# Don't start tmux in Linux console
+			# Don't start zellij in Linux console
 		case '*'
-			if ! set -q TMUX
-				exec tmux set-option -g default-shell (which fish) ';' new-session
+			if ! set -q ZELLIJ
+				exec zellij
 			end
 	end
 end
@@ -81,6 +81,7 @@ set -gx LESS_TERMCAP_us \e'[04;38;5;146m' # begin underline
 # ============================================
 # PATH modifications
 # ============================================
+fish_add_path ~/.local/bin
 if not string match -q -- $PNPM_HOME $PATH
 	set -gx PATH $PNPM_HOME $PATH
 end

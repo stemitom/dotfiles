@@ -12,10 +12,10 @@ function M.update_config(config)
   config.hide_tab_bar_if_only_one_tab = true
   config.window_decorations = "RESIZE"
   config.window_padding = {
-    left = 5,
-    right = 5,
-    top = 5,
-    bottom = 5,
+    left = 4,
+    right = 4,
+    top = 4,
+    bottom = 4,
   }
 end
 

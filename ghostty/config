@@ -15,7 +15,7 @@ cursor-style-blink = false
 
 # Font
 font-family = Geist Mono
-font-size = 9
+font-size = 8
 font-thicken = false
 freetype-load-flags = no-autohint
 bold-is-bright = true

@@ -31,6 +31,9 @@ sync_config "$HOME/.config/nvim" "$DOTFILES_DIR/nvim" "--exclude='.claude'"
 # Sync wezterm config
 sync_config "$HOME/.config/wezterm" "$DOTFILES_DIR/wezterm"
 
+# Sync ghostty config (exclude .claude directory)
+sync_config "$HOME/.config/ghostty" "$DOTFILES_DIR/ghostty" "--exclude='.claude'"
+
 # Sync tmux config
 sync_config "$HOME/.tmux.conf" "$DOTFILES_DIR/tmux/.tmux.conf"
 

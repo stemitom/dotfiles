@@ -1,0 +1,28 @@
+# Window
+window-height = 29
+window-width = 110
+window-decoration = none
+window-padding-x = 12
+window-padding-y = 8
+quick-terminal-position = center
+
+# Appearance
+background = 0a0a0a
+foreground = e0e0e0
+
+# Cursor
+cursor-style = underline
+cursor-style-blink = false
+
+# Font
+font-family = TypeStar OCR
+font-size = 9
+font-thicken = false
+freetype-load-flags = no-autohint
+bold-is-bright = true
+adjust-cell-height = 2
+
+# Behavior
+copy-on-select = clipboard
+mouse-hide-while-typing = true
+scrollback-limit = 50000

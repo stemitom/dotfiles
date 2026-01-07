@@ -6,6 +6,7 @@ Personal configuration files for my development environment.
 
 - **nvim**: Neovim configuration
 - **wezterm**: WezTerm terminal emulator configuration
+- **ghostty**: Ghostty terminal emulator configuration
 - **tmux**: Tmux terminal multiplexer configuration
 - **fish**: Fish shell configuration
 
@@ -63,6 +64,7 @@ cd ~/workspace/personal/dotfiles
 # Copy configs to their locations
 rsync -av nvim/ ~/.config/nvim/
 rsync -av wezterm/ ~/.config/wezterm/
+rsync -av ghostty/ ~/.config/ghostty/
 rsync -av fish/ ~/.config/fish/
 cp tmux/.tmux.conf ~/.tmux.conf
 
@@ -75,5 +77,5 @@ systemctl --user enable --now dotfiles-sync.timer
 ## Notes
 
 - `fish_variables` is excluded (machine-specific)
-- `.claude` directory in nvim is excluded
+- `.claude` directories in nvim and ghostty are excluded
 - Timer runs hourly to minimize commit noise while keeping regular backups

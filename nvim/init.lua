@@ -519,20 +519,18 @@ require('lazy').setup {
     end,
   },
 
-  -- Tmux navigation
+  -- Zellij Nav
   {
-    'alexghergh/nvim-tmux-navigation',
-    config = function()
-      require('nvim-tmux-navigation').setup {
-        disable_when_zoomed = true,
-        keybindings = {
-          left = '<C-h>',
-          down = '<C-j>',
-          up = '<C-k>',
-          right = '<C-l>',
-        },
-      }
-    end,
+    'swaits/zellij-nav.nvim',
+    lazy = true,
+    event = 'VeryLazy',
+    keys = {
+      { '<C-h>', '<cmd>ZellijNavigateLeft<cr>', silent = true, desc = 'navigate left' },
+      { '<C-j>', '<cmd>ZellijNavigateDown<cr>', silent = true, desc = 'navigate down' },
+      { '<C-k>', '<cmd>ZellijNavigateUp<cr>', silent = true, desc = 'navigate up' },
+      { '<C-l>', '<cmd>ZellijNavigateRight<cr>', silent = true, desc = 'navigate right' },
+    },
+    opts = {},
   },
 
   -- Git integration

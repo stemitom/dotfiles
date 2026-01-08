@@ -278,6 +278,12 @@ vim.api.nvim_create_autocmd('BufRead', { pattern = '*.pacnew', command = 'set re
 -- Leave paste mode when leaving insert mode
 vim.api.nvim_create_autocmd('InsertLeave', { pattern = '*', command = 'set nopaste' })
 
+-- Unlock Zellij when exiting Neovim
+vim.api.nvim_create_autocmd('VimLeave', {
+  pattern = '*',
+  command = 'silent !zellij action switch-mode normal',
+})
+
 -------------------------------------------------------------------------------
 --
 -- diagnostics

@@ -525,10 +525,10 @@ require('lazy').setup {
     lazy = true,
     event = 'VeryLazy',
     keys = {
-      { '<C-h>', '<cmd>ZellijNavigateLeft<cr>', silent = true, desc = 'navigate left' },
-      { '<C-j>', '<cmd>ZellijNavigateDown<cr>', silent = true, desc = 'navigate down' },
-      { '<C-k>', '<cmd>ZellijNavigateUp<cr>', silent = true, desc = 'navigate up' },
-      { '<C-l>', '<cmd>ZellijNavigateRight<cr>', silent = true, desc = 'navigate right' },
+      { '<c-h>', '<cmd>ZellijNavigateLeftTab<cr>', { silent = true, desc = 'navigate left or tab' } },
+      { '<c-j>', '<cmd>ZellijNavigateDown<cr>', { silent = true, desc = 'navigate down' } },
+      { '<c-k>', '<cmd>ZellijNavigateUp<cr>', { silent = true, desc = 'navigate up' } },
+      { '<c-l>', '<cmd>ZellijNavigateRightTab<cr>', { silent = true, desc = 'navigate right or tab' } },
     },
     opts = {},
   },
@@ -934,5 +934,16 @@ require('lazy').setup {
 
       require('dap-go').setup()
     end,
+  },
+
+  -- Markdown preview
+  {
+    'OXY2DEV/markview.nvim',
+    ft = 'markdown',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-tree/nvim-web-devicons',
+    },
+    opts = {},
   },
 }

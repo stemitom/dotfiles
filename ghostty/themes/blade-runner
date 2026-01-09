@@ -1,0 +1,33 @@
+# Blade Runner Terminal Theme
+# Dystopian orange glow in perpetual rain
+
+background = #0a0e1a
+foreground = #e6d5ac
+
+# Cursor
+cursor-color = #ff8c00
+cursor-text = #0a0e1a
+
+# Selection
+selection-background = #ff8c00
+selection-foreground = #0a0e1a
+
+# Normal colors
+palette = 0=#1a1e2a
+palette = 1=#ff1744
+palette = 2=#00e676
+palette = 3=#ffd700
+palette = 4=#00b8d4
+palette = 5=#ff4081
+palette = 6=#00e5ff
+palette = 7=#d5c5a5
+
+# Bright colors
+palette = 8=#3a3e4a
+palette = 9=#ff5a7a
+palette = 10=#33ffa0
+palette = 11=#ffe033
+palette = 12=#33ccee
+palette = 13=#ff66aa
+palette = 14=#33f0ff
+palette = 15=#e6d5ac

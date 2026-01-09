@@ -1,0 +1,33 @@
+# Miami Vice Terminal Theme
+# Hot pink and turquoise neon tropics
+
+background = #0a0a14
+foreground = #ffffff
+
+# Cursor
+cursor-color = #ff0080
+cursor-text = #0a0a14
+
+# Selection
+selection-background = #ff0080
+selection-foreground = #ffffff
+
+# Normal colors
+palette = 0=#1a1a24
+palette = 1=#ff0066
+palette = 2=#00ffaa
+palette = 3=#ffcc00
+palette = 4=#0099ff
+palette = 5=#c724b1
+palette = 6=#00ffcc
+palette = 7=#e6e6ff
+
+# Bright colors
+palette = 8=#3a3a44
+palette = 9=#ff3399
+palette = 10=#33ffcc
+palette = 11=#ffdd33
+palette = 12=#33aaff
+palette = 13=#ff6bd9
+palette = 14=#33ffdd
+palette = 15=#ffffff

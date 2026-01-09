@@ -1,0 +1,33 @@
+# Cowboy Bebop Terminal Theme
+# Jazz noir aesthetic with warm cream and gold accents
+
+background = #0d1117
+foreground = #e8dcc4
+
+# Cursor
+cursor-color = #d4af37
+cursor-text = #0d1117
+
+# Selection
+selection-background = #d4af37
+selection-foreground = #0d1117
+
+# Normal colors
+palette = 0=#1a1a1a
+palette = 1=#8b1a1a
+palette = 2=#5a7a3a
+palette = 3=#cc7a00
+palette = 4=#2c5f8d
+palette = 5=#7a4a6a
+palette = 6=#4a6a7a
+palette = 7=#b8a890
+
+# Bright colors
+palette = 8=#4a4a4a
+palette = 9=#cc3333
+palette = 10=#7ab35a
+palette = 11=#d4af37
+palette = 12=#5a8fcc
+palette = 13=#aa6a9a
+palette = 14=#6a9aba
+palette = 15=#e8dcc4

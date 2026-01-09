@@ -1,29 +1,29 @@
-# NERV Terminal Theme
-# Inspired by Neon Genesis Evangelion MAGI interface
+# Initial D Terminal Theme
+# Touge racing with AE86 colors - black, white, red, yellow
 
 background = #0a0a0a
-foreground = #ff9933
+foreground = #ffffff
 
 # Cursor
-cursor-color = #ff6600
+cursor-color = #ff0000
 cursor-text = #0a0a0a
 
 # Selection
-selection-background = #ff6600
+selection-background = #ff0000
 selection-foreground = #ffffff
 
 # Normal colors
 palette = 0=#1a1a1a
-palette = 1=#cc0000
-palette = 2=#00cc00
-palette = 3=#cccc00
+palette = 1=#ff0000
+palette = 2=#00ff00
+palette = 3=#ffff00
 palette = 4=#0066cc
 palette = 5=#cc00cc
 palette = 6=#00cccc
 palette = 7=#cccccc
 
 # Bright colors
-palette = 8=#333333
+palette = 8=#808080
 palette = 9=#ff3333
 palette = 10=#33ff33
 palette = 11=#ffff33

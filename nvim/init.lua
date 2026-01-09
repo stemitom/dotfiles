@@ -318,6 +318,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Load nerv colorscheme
+require 'akira'
+
 -- Setup plugins
 require('lazy').setup {
   {
@@ -333,7 +336,7 @@ require('lazy').setup {
       vim.g.gruvbox_material_cursor = 'auto'
       vim.g.gruvbox_material_colors_override = { bg0 = '#121212' }
       vim.g.gruvbox_material_better_performance = 1
-      vim.cmd.colorscheme 'gruvbox-material'
+      -- vim.cmd.colorscheme 'gruvbox-material'
     end,
   },
 

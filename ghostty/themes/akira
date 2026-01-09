@@ -1,0 +1,33 @@
+# Akira Terminal Theme
+# Neon dystopian cyberpunk inspired by Katsuhiro Otomo's masterpiece
+
+background = #0a0a0a
+foreground = #ffffff
+
+# Cursor
+cursor-color = #ff0033
+cursor-text = #0a0a0a
+
+# Selection
+selection-background = #ff0033
+selection-foreground = #ffffff
+
+# Normal colors
+palette = 0=#1a1a1a
+palette = 1=#ff0033
+palette = 2=#00ff66
+palette = 3=#ffcc00
+palette = 4=#0099ff
+palette = 5=#ff00ff
+palette = 6=#00ffff
+palette = 7=#cccccc
+
+# Bright colors
+palette = 8=#4a4a4a
+palette = 9=#ff3366
+palette = 10=#33ff88
+palette = 11=#ffdd33
+palette = 12=#33aaff
+palette = 13=#ff33ff
+palette = 14=#33ffff
+palette = 15=#ffffff

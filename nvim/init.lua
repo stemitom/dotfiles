@@ -435,7 +435,7 @@ require('lazy').setup {
         },
       }
 
-      vim.keymap.set('', '<C-p>', function()
+      vim.keymap.set('', '<C-f>', function()
         local opts = {}
         opts.cmd = 'fd --color=never --hidden --type f --type l --exclude .git'
         local base = vim.fn.fnamemodify(vim.fn.expand '%', ':h:.:S')

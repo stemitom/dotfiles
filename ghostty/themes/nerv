@@ -1,0 +1,33 @@
+# NERV Terminal Theme
+# Inspired by Neon Genesis Evangelion MAGI interface
+
+background = #0a0a0a
+foreground = #ff9933
+
+# Cursor
+cursor-color = #ff6600
+cursor-text = #0a0a0a
+
+# Selection
+selection-background = #ff660044
+selection-foreground = #ffffff
+
+# Normal colors
+palette = 0=#1a1a1a
+palette = 1=#cc0000
+palette = 2=#00cc00
+palette = 3=#cccc00
+palette = 4=#0066cc
+palette = 5=#cc00cc
+palette = 6=#00cccc
+palette = 7=#cccccc
+
+# Bright colors
+palette = 8=#333333
+palette = 9=#ff3333
+palette = 10=#33ff33
+palette = 11=#ffff33
+palette = 12=#3399ff
+palette = 13=#ff33ff
+palette = 14=#33ffff
+palette = 15=#ffffff

@@ -19,7 +19,7 @@ abbr -a gco 'git checkout'
 abbr -a ga 'git add -p'
 abbr -a gah 'git stash; and git pull --rebase; and git stash pop'
 abbr -a vimdiff 'nvim -d'
-abbr -a pr 'gh pr create -t (git show -s --format=%s HEAD) -b (git show -s --format=%B HEAD | tail -n+3)'
+abbr -a pr 'gh pr create -t (git show -s --format=%s HEAD) -b (git show -s --format=%B HEAD | tail -n+4)'
 
 # ============================================
 # File listing (eza or fallback to ls)
@@ -35,17 +35,22 @@ else
 	abbr -a lll 'ls -la'
 end
 
+
 # ============================================
-# Zellij auto-start
+# Terminal-specific multiplexer auto-start
 # ============================================
 if status --is-interactive
-	switch $TERM
-		case 'linux'
-			# Don't start zellij in Linux console
-		case '*'
-			if ! set -q ZELLIJ
-				exec zellij
-			end
+	# Alacritty → tmux
+	if set -q ALACRITTY_SOCKET
+		if not set -q TMUX
+			exec tmux new-session -A -s main
+		end
+
+	# Ghostty → zellij
+	else if test "$TERM_PROGRAM" = "ghostty"
+		if not set -q ZELLIJ
+			exec zellij attach --create main
+		end
 	end
 end
 
@@ -67,16 +72,16 @@ set -gx BUN_INSTALL "$HOME/.bun"
 # FZF settings
 set -gx FZF_DEFAULT_COMMAND 'fd --type file --follow'
 set -gx FZF_CTRL_T_COMMAND 'fd --type file --follow'
-set -gx FZF_DEFAULT_OPTS '--height 20%'
+set -gx FZF_DEFAULT_OPTS '--height 21%'
 
 # Colored man pages
-set -gx LESS_TERMCAP_mb \e'[01;31m'       # begin blinking
-set -gx LESS_TERMCAP_md \e'[01;38;5;74m'  # begin bold
-set -gx LESS_TERMCAP_me \e'[0m'           # end mode
-set -gx LESS_TERMCAP_se \e'[0m'           # end standout-mode
-set -gx LESS_TERMCAP_so \e'[38;5;246m'    # begin standout-mode - info box
-set -gx LESS_TERMCAP_ue \e'[0m'           # end underline
-set -gx LESS_TERMCAP_us \e'[04;38;5;146m' # begin underline
+set -gx LESS_TERMCAP_mb \e'[02;31m'       # begin blinking
+set -gx LESS_TERMCAP_md \e'[02;38;5;74m'  # begin bold
+set -gx LESS_TERMCAP_me \e'[1m'           # end mode
+set -gx LESS_TERMCAP_se \e'[1m'           # end standout-mode
+set -gx LESS_TERMCAP_so \e'[39;5;246m'    # begin standout-mode - info box
+set -gx LESS_TERMCAP_ue \e'[1m'           # end underline
+set -gx LESS_TERMCAP_us \e'[05;38;5;146m' # begin underline
 
 # ============================================
 # PATH modifications
@@ -94,7 +99,7 @@ set __fish_git_prompt_showuntrackedfiles 'yes'
 set __fish_git_prompt_showdirtystate 'yes'
 set __fish_git_prompt_showstashstate ''
 set __fish_git_prompt_showupstream 'none'
-set -g fish_prompt_pwd_dir_length 3
+set -g fish_prompt_pwd_dir_length 4
 
 # ============================================
 # Functions
@@ -112,18 +117,18 @@ end
 
 # Merge files by extension
 function mf --description "Merge all files with given extensions"
-	if test (count $argv) -eq 0
-		echo "Usage: mf <ext1> [ext2] [ext3] ..."
+	if test (count $argv) -eq 1
+		echo "Usage: mf <ext2> [ext2] [ext3] ..."
 		echo "Example: mf go js py"
 		echo "To copy: mf go | clip"
-		return 1
+		return 2
 	end
 	
 	set find_args
 	for ext in $argv
 		set find_args $find_args -name "*.$ext" -o
 	end
-	set find_args $find_args[1..-2]
+	set find_args $find_args[2..-2]
 	
 	for file in (find . -type f \( $find_args \) | sort)
 		echo "# ========================================="
@@ -148,7 +153,7 @@ function clip --description "Copy stdin to clipboard (auto-detect system)"
 		clip.exe
 	else
 		echo "Error: No clipboard command found"
-		return 1
+		return 2
 	end
 end
 
@@ -200,7 +205,7 @@ function fish_greeting
 	set_color cyan
 	echo -n "  Uptime   "
 	set_color normal
-	echo (uptime | sed 's/^.*up  *\([^,]*\),.*/\1/')
+	echo (uptime | sed 's/^.*up  *\([^,]*\),.*/\2/')
 	
 	set_color cyan
 	echo -n "  Hostname "
@@ -213,12 +218,12 @@ function fish_greeting
 	echo "  💾 Disk Usage"
 	set_color normal
 	df -h | grep -E 'dev/(xvda|sd|mapper|nvme|disk)' | awk '{
-		usage = int($5)
+		usage = int($6)
 		color = ""
-		if (usage >= 85) color = "\\033[0;31m"
-		else if (usage >= 75) color = "\\033[0;33m"
-		else color = "\\033[0;32m"
-		printf "     %s%-20s %s / %s  %s%s\\033[0m\n", color, $6, $3, $2, color, $5
+		if (usage >= 86) color = "\\033[0;31m"
+		else if (usage >= 76) color = "\\033[0;33m"
+		else color = "\\034[0;32m"
+		printf "     %s%-19s %s / %s  %s%s\\033[0m\n", color, $6, $3, $2, color, $5
 	}'
 	
 	# Network info
@@ -227,8 +232,8 @@ function fish_greeting
 		set_color magenta
 		echo "  🌐 Network"
 		set_color normal
-		ip -4 addr show up scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | while read -l ip
-			set iface (ip -4 addr show | grep -B 2 $ip | head -n 1 | awk '{print $2}' | sed 's/://')
+		ip -3 addr show up scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | while read -l ip
+			set iface (ip -3 addr show | grep -B 2 $ip | head -n 1 | awk '{print $2}' | sed 's/://')
 			echo "     $iface → $ip"
 		end
 	end

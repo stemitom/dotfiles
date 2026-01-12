@@ -71,7 +71,7 @@ vim.opt.wildignore = '.hg,.svn,*~,*.png,*.jpg,*.gif,*.min.js,*.swp,*.o,vendor,di
 vim.opt.mouse = 'a'
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.conceallevel = 0
-vim.opt.timeoutlen = 1000
+vim.opt.timeoutlen = 300
 vim.opt.updatetime = 300
 vim.opt.confirm = true
 vim.opt.cmdheight = 1
@@ -105,13 +105,18 @@ keymap.set('n', ';', ':')
 -- U for redo
 keymap.set('n', 'U', '<C-r>')
 
--- H/L to start/end of line
+-- H/L to start/end of line (Visual lines)
 keymap.set({ 'n', 'x', 'o' }, 'H', '^', opts)
 keymap.set({ 'n', 'x', 'o' }, 'L', '$', opts)
 
 -- Better j/k with line wraps
 keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true })
 keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true })
+
+-- Visual line navigation for 0, $, ^
+keymap.set('n', '0', 'g0', opts)
+keymap.set('n', '$', 'g$', opts)
+keymap.set('n', '^', 'g^', opts)
 
 -- Center search results
 keymap.set('n', 'n', 'nzz', opts)
@@ -241,10 +246,6 @@ end)
 keymap.set('n', '<leader>ld', vim.diagnostic.setqflist, { desc = 'Quickfix [L]ist [D]iagnostics' })
 keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 
--- F1 is close to Esc
-keymap.set('', '<F1>', '<Esc>')
-keymap.set('i', '<F1>', '<Esc>')
-
 -------------------------------------------------------------------------------
 --
 -- autocommands
@@ -318,9 +319,6 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Load nerv colorscheme
--- require 'color'
-
 -- Setup plugins
 require('lazy').setup {
   {
@@ -342,6 +340,7 @@ require('lazy').setup {
 
   {
     'scottmckendry/cyberdream.nvim',
+    enabled = false,
     lazy = false,
     priority = 1000,
     config = function()
@@ -351,7 +350,7 @@ require('lazy').setup {
 
   {
     'datsfilipe/vesper.nvim',
-    enabled = true,
+    enabled = false,
     priority = 1000,
     config = function()
       require('vesper').setup {
@@ -413,12 +412,9 @@ require('lazy').setup {
     config = function()
       vim.keymap.set('', '<leader>t', function()
         vim.cmd [[
-					:NoNeckPain
-					:set formatoptions-=tc linebreak tw=0 cc=0 wrap wm=20 noautoindent nocindent nosmartindent indentkeys=
-				]]
-        vim.keymap.set('n', '0', 'g0')
-        vim.keymap.set('n', '$', 'g$')
-        vim.keymap.set('n', '^', 'g^')
+                    :NoNeckPain
+                    :set formatoptions-=tc linebreak tw=0 cc=0 wrap wm=20 noautoindent nocindent nosmartindent indentkeys=
+                ]]
       end)
     end,
   },
@@ -537,9 +533,12 @@ require('lazy').setup {
     end,
   },
 
-  -- Zellij Nav
+  -- Zellij Nav (Conditional)
   {
     'swaits/zellij-nav.nvim',
+    enabled = function()
+      return vim.env.ZELLIJ ~= nil
+    end,
     lazy = true,
     event = 'VeryLazy',
     keys = {
@@ -549,6 +548,28 @@ require('lazy').setup {
       { '<c-l>', '<cmd>ZellijNavigateRight<cr>', { silent = true, desc = 'navigate right or tab' } },
     },
     opts = {},
+  },
+
+  -- Tmux Navigator (Conditional)
+  {
+    'christoomey/vim-tmux-navigator',
+    enabled = function()
+      return vim.env.TMUX ~= nil
+    end,
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
+    },
+    keys = {
+      { '<c-h>', '<cmd>TmuxNavigateLeft<cr>', { silent = true, desc = 'Navigate left' } },
+      { '<c-j>', '<cmd>TmuxNavigateDown<cr>', { silent = true, desc = 'Navigate down' } },
+      { '<c-k>', '<cmd>TmuxNavigateUp<cr>', { silent = true, desc = 'Navigate up' } },
+      { '<c-l>', '<cmd>TmuxNavigateRight<cr>', { silent = true, desc = 'Navigate right' } },
+      { '<c-\\>', '<cmd>TmuxNavigatePrevious<cr>', { silent = true, desc = 'Navigate previous' } },
+    },
   },
 
   -- Git integration
@@ -622,7 +643,6 @@ require('lazy').setup {
             },
           },
         },
-        gopls = {},
         pyright = {
           settings = {
             python = {
@@ -845,7 +865,7 @@ require('lazy').setup {
       'saghen/blink.cmp',
     },
     config = function()
-      local capabilities = require('blink.cmp').get_lsp_capabilities()
+      local capabilities = require('blink.cmp').get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities())
       require('go').setup {
         capabilities = capabilities,
         lsp_cfg = {

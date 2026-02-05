@@ -323,6 +323,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup {
   {
     'sainnhe/gruvbox-material',
+    enabled = false,
     priority = 1000,
     config = function()
       vim.g.gruvbox_material_transparent_background = 1
@@ -334,7 +335,7 @@ require('lazy').setup {
       vim.g.gruvbox_material_cursor = 'auto'
       vim.g.gruvbox_material_colors_override = { bg0 = '#121212' }
       vim.g.gruvbox_material_better_performance = 1
-      vim.cmd.colorscheme 'gruvbox-material'
+      -- vim.cmd.colorscheme 'gruvbox-material'
     end,
   },
 
@@ -350,7 +351,7 @@ require('lazy').setup {
 
   {
     'datsfilipe/vesper.nvim',
-    enabled = false,
+    enabled = true,
     priority = 1000,
     config = function()
       require('vesper').setup {
@@ -362,7 +363,7 @@ require('lazy').setup {
           variables = false,
         },
       }
-      -- vim.cmd.colorscheme 'vesper'
+      vim.cmd.colorscheme 'vesper'
     end,
   },
 

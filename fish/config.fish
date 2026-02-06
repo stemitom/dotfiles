@@ -46,6 +46,9 @@ end
 # ============================================
 # Environment
 # ============================================
+set -Ux LANG en_US.UTF-8
+set -Ux LC_ALL en_US.UTF-8
+
 set -gx PGUSER postgres
 set -gx PGPASSWORD postgres
 set -gx PNPM_HOME "$HOME/.local/share/pnpm"

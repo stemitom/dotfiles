@@ -626,8 +626,10 @@ require('lazy').setup {
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
 
+      -- Configure each server via vim.lsp.config() (new API)
       local servers = {
         rust_analyzer = {
+          capabilities = capabilities,
           settings = {
             ['rust-analyzer'] = {
               cargo = { allFeatures = true },
@@ -637,6 +639,7 @@ require('lazy').setup {
           },
         },
         lua_ls = {
+          capabilities = capabilities,
           settings = {
             Lua = {
               completion = { callSnippet = 'Replace' },
@@ -645,6 +648,16 @@ require('lazy').setup {
           },
         },
         pyright = {
+          capabilities = capabilities,
+          before_init = function(_, config)
+            local root = config.root_dir or vim.fn.getcwd()
+            local venv = root .. '/.venv'
+            if vim.fn.isdirectory(venv) == 1 then
+              config.settings.python.pythonPath = venv .. '/bin/python'
+              config.settings.python.venvPath = root
+              config.settings.python.venv = '.venv'
+            end
+          end,
           settings = {
             python = {
               analysis = {
@@ -652,27 +665,40 @@ require('lazy').setup {
                 diagnosticMode = 'workspace',
                 useLibraryCodeForTypes = true,
                 typeCheckingMode = 'basic',
+
               },
             },
           },
         },
-        ruff = {},
-        zls = {},
+        ruff = {
+          capabilities = capabilities,
+          on_attach = function(client, _)
+            -- Disable hover in favor of Pyright
+            client.server_capabilities.hoverProvider = false
+          end,
+          init_options = {
+            settings = {
+              lint = {
+                -- Let Pyright handle these (avoids duplicate diagnostics)
+                ignore = { 'F401', 'F841' },
+              },
+            },
+          },
+        },
+        zls = { capabilities = capabilities },
       }
 
+      for name, config in pairs(servers) do
+        vim.lsp.config(name, config)
+      end
+
       require('mason').setup()
-      local ensure_installed = vim.tbl_keys(servers or {})
+      local ensure_installed = vim.tbl_keys(servers)
       vim.list_extend(ensure_installed, { 'stylua' })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
+        automatic_enable = true,
       }
     end,
   },
